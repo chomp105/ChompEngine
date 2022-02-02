@@ -8,14 +8,14 @@ function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
 
-function returnCanvasX() {
+function returnCanvasX(canvas) {
     if (canvas != undefined) {
         return canvas.width; 
     }
     return 0;
 }
 
-function returnCanvasY() {
+function returnCanvasY(canvas) {
     if (canvas != undefined) {
         return canvas.height; 
     }
@@ -128,11 +128,8 @@ function checkCircleLineCollisions(circles, lines) {
 
 /* render */
 
-let canvas = document.getElementById("gc");
-let ctx = canvas.getContext("2d");
-
-function render() {
-    ctx.clearRect(0, 0, returnCanvasX(), returnCanvasY());
+function render(ctx, canvas) {
+    ctx.clearRect(0, 0, returnCanvasX(canvas), returnCanvasY(canvas));
     ctx.strokeStyle = "magenta";
     for (let c of circles) {
         ctx.beginPath();
@@ -146,3 +143,15 @@ function render() {
         ctx.stroke();
     }
 }
+
+export {
+        Circle,
+        Line,
+        CircleCircleCollision,
+        CircleLineCollision,
+        checkCircleCircleCollisions,
+        resolveCircleCircleCollisions,
+        wallCollisions,
+        checkCircleLineCollisions,
+        render
+};

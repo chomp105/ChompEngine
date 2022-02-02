@@ -1,4 +1,4 @@
-# ChompEngine
+![chomp logo](https://github.com/chomp105/ChompEngine/blob/master/ChompLogo.png?raw=true)
 (Under Development)
 
 About

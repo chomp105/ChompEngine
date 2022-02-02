@@ -1,10 +1,30 @@
-// the chomp105 game engine
+/************************************************
+ *  The Chomp105 2d game engine - aka ChompEngine
+ ************************************************/
 
-/* Math */
+/* Utility */
 
 function distance(x1, y1, x2, y2) {
     return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
 }
+
+function returnCanvasX() {
+    if (canvas != undefined) {
+        return canvas.width; 
+    }
+    return 0;
+}
+
+function returnCanvasY() {
+    if (canvas != undefined) {
+        return canvas.height; 
+    }
+    return 0;
+}
+
+document.addEventListener("click", (e) => {
+    circles.push(new Circle(e.clientX, e.clientY, 50));
+});
 
 /* Objects */
 
@@ -24,12 +44,16 @@ function Line(x1, y1, x2, y2) {
 function CircleCircleCollision(c1, c2, cd) {
     this.c1 = c1;
     this.c2 = c2;
-    // collision distance
-    this.cd = cd;
+    this.cd = cd; // collision distance
     this.d = distance(c1.x, c1.y, c2.x, c2.y);
     this.xdist = c2.x - c1.x;
     this.ydist = c2.y - c1.y;
 } let circleCircleCollisions = [];
+
+function CircleLineCollision(c, l) {
+    this.c = c;
+    this.l = l;
+} let circleLineCollisions = [];
 
 /* Circle Collision Detection */
 
@@ -48,12 +72,9 @@ function checkCircleCircleCollisions(circles) {
 
 function resolveCircleCircleCollisions() {
     for (let i = 0; i < circleCircleCollisions.length; i++) {
-
         let xratio = circleCircleCollisions[i].xdist / circleCircleCollisions[i].d;
         let yratio = circleCircleCollisions[i].ydist / circleCircleCollisions[i].d;
-
-        console.log(circleCircleCollisions[i]);
-
+        // moves the circles apart in opposite directions along a line formed by the centers of either circle
         circleCircleCollisions[i].c1.x -= circleCircleCollisions[i].cd * (xratio / 2);
         circleCircleCollisions[i].c1.y -= circleCircleCollisions[i].cd * (yratio / 2);
         circleCircleCollisions[i].c2.x += circleCircleCollisions[i].cd * (xratio / 2);
@@ -64,98 +85,64 @@ function resolveCircleCircleCollisions() {
 
 /* Circle Edge Collision Detection and Resolution */
 
-function wallCollisions(circles) {
+function wallCollisions(circles, wx1, wy1, wx2, wy2) {
     for (let i = 0; i < circles.length; i++) {
-        if (circles[i].x - circles[i].r < 0) {
-            circles[i].x = 0 + circles[i].r;
-        } else if (circles[i].x + circles[i].r > 400) {
-            circles[i].x = 400 - circles[i].r;
+        if (circles[i].x - circles[i].r < wx1) {
+            circles[i].x = wx1 + circles[i].r;
+        } else if (circles[i].x + circles[i].r > wx2) {
+            circles[i].x = wx2 - circles[i].r;
         }
-        if (circles[i].y - circles[i].r < 0) {
-            circles[i].y = 0 + circles[i].r;
-        } else if (circles[i].y + circles[i].r > 400) {
-            circles[i].y = 400 - circles[i].r;
+        if (circles[i].y - circles[i].r < wy1) {
+            circles[i].y = wy1 + circles[i].r;
+        } else if (circles[i].y + circles[i].r > wy2) {
+            circles[i].y = wy2 - circles[i].r;
         }
     }
 }
 
 /* Circle Line Collision Detection */
 
+function checkCircleLineCollisions(circles, lines) {
+    for (let i = 0; i < circles.length; i++) {
+        for (let j = 0; j < lines.length; j++) {
+            let d = distance(lines[j].x1, lines[j].y1, lines[j].x2, lines[j].y2);
+            // dot product of the line and the vector between one point of the line and the circle
+            let dot = ((circles[i].x - lines[j].x1) * (lines[j].x2 - lines[j].x1) + (circles[i].y - lines[j].y1) * (lines[j].y2 - lines[j].y1)) / d;
+            let xd = lines[j].x2 - lines[j].x1;
+            let yd = lines[j].y2 - lines[j].y1;
+            // closest point on line to the circle
+            let px = dot * (xd / d) + lines[j].x1;
+            let py = dot * (yd / d) + lines[j].y1;
+            // checks if the circle is touching the point
+            if ((circles[i].r > distance(circles[i].x, circles[i].y, px, py) && (circles[i].x > lines[j].x1 && circles[i].y > lines[j].y1 && circles[i].x < lines[j].x2 && circles[i].y < lines[j].y2))
+            || (Math.sqrt((circles[i].x - lines[j].x1)**2 + (circles[i].y - lines[j].y1)**2) < circles[i].r || Math.sqrt((circles[i].x - lines[j].x2)**2 + (circles[i].y - lines[j].y2)**2) < circles[i].r)) {
+                circleLineCollisions.push(circles[i], lines[j]);
+            }
+        }
+    }
+}
+
 /* Circle Line Collision Resolution */
+
+// ------------- IDEK WHAT TO DO. ITS NOT EVEN THAT I CANT FIGURE OUT HOW TO DO IT I JUST DONT KNOW WHAT SHOULD ACTUALLY HAPPEN ----------------
 
 /* render */
 
-let ctx = document.getElementById("gc").getContext("2d");
+let canvas = document.getElementById("gc");
+let ctx = canvas.getContext("2d");
 
 function render() {
-    ctx.clearRect(0, 0, 400, 400);
+    ctx.clearRect(0, 0, returnCanvasX(), returnCanvasY());
     ctx.strokeStyle = "magenta";
     for (let c of circles) {
         ctx.beginPath();
         ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
         ctx.stroke();
     }
-    for (let l in lines) {
+    for (let l of lines) {
         ctx.beginPath();
         ctx.moveTo(l.x1, l.y1);
         ctx.lineTo(l.x2, l.y2);
         ctx.stroke();
     }
 }
-
-document.addEventListener("click", (e) => {
-    circles.push(new Circle(e.clientX, e.clientY, 50));
-});
-
-
-let kp = {
-    right: 0,
-    left: 0,
-    up: 0,
-    down: 0,
-}
-let xf, yf;
-xf = 0;
-yf = 0;
-document.addEventListener("keydown", (e) => {
-    if (e.which == 39) {
-        kp.right = true;
-    } else if (e.which == 37) {
-        kp.left = true;
-    } else if (e.which == 38) {
-        kp.up = true;
-    } else if (e.which == 40) {
-        kp.down = true;
-    }
-});
-document.addEventListener("keyup", (e) => {
-    if (e.which == 39) {
-        kp.right = false;
-    } else if (e.which == 37) {
-        kp.left = false;
-    } else if (e.which == 38) {
-        kp.up = false;
-    } else if (e.which == 40) {
-        kp.down = false;
-    }
-});
-
-function game() {
-
-    if (circles.length > 0) {
-    xf += (2 * kp.right) + (-2 * kp.left);
-    yf += (2 * kp.down) + (-2 * kp.up);
-    circles[0].x += xf / circles[0].r;
-    circles[0].y += yf / circles[0].r;
-    xf -= xf / 30;
-    yf -= yf / 30;}
-
-    if (circles.length > 0) {
-        wallCollisions(circles);
-        checkCircleCircleCollisions(circles);
-        resolveCircleCircleCollisions();
-        render();
-    }
-
-    window.requestAnimationFrame(game);
-} window.requestAnimationFrame(game);

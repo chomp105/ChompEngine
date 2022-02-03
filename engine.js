@@ -51,91 +51,109 @@ function CircleLineCollision(c, l) {
     this.l = l;
 }
 
-/* Circle Collision Detection */
+/**************
+ * Engine Class
+ **************/
 
-function checkCircleCircleCollisions(circles, circleCircleCollisions) {
-    for (let i = 0; i < circles.length; i++) {
-        for (let j = i + 1; j < circles.length; j++) {
-            let d = distance(circles[i].x, circles[i].y, circles[j].x, circles[j].y);
-            if (d < circles[i].r + circles[j].r) {
-                circleCircleCollisions.push(new CircleCircleCollision(circles[i], circles[j], circles[i].r + circles[j].r - d));
+class Chomp {
+    // setup
+    constructor(wx1, wy1, wx2, wy2) {
+        this.circles = [];
+        this.lines = [];
+        this.circleCircleCollisions = [];
+        this.circleLineCollisions = [];
+        this.wx1 = wx1;
+        this.wy1 = wy1;
+        this.wx2 = wx2;
+        this.wy2 = wy2;
+        this.player = 0;
+        this.xoffset = 0;
+        this.yoffset = 0;
+    }
+    /* Circle Collision Detection */
+    checkCircleCircleCollisions = () => {
+        for (let i = 0; i < this.circles.length; i++) {
+            for (let j = i + 1; j < this.circles.length; j++) {
+                let d = distance(this.circles[i].x, this.circles[i].y, this.circles[j].x, this.circles[j].y);
+                if (d < this.circles[i].r + this.circles[j].r) {
+                    this.circleCircleCollisions.push(new CircleCircleCollision(this.circles[i], this.circles[j], this.circles[i].r + this.circles[j].r - d));
+                }
             }
         }
     }
-}
-
-/* Circle Collision Resoluion */
-
-function resolveCircleCircleCollisions(circleCircleCollisions) {
-    for (let i = 0; i < circleCircleCollisions.length; i++) {
-        let xratio = circleCircleCollisions[i].xdist / circleCircleCollisions[i].d;
-        let yratio = circleCircleCollisions[i].ydist / circleCircleCollisions[i].d;
-        // moves the circles apart in opposite directions along a line formed by the centers of either circle
-        circleCircleCollisions[i].c1.x -= circleCircleCollisions[i].cd * (xratio / 2);
-        circleCircleCollisions[i].c1.y -= circleCircleCollisions[i].cd * (yratio / 2);
-        circleCircleCollisions[i].c2.x += circleCircleCollisions[i].cd * (xratio / 2);
-        circleCircleCollisions[i].c2.y += circleCircleCollisions[i].cd * (yratio / 2);
-    }
-    circleCircleCollisions = [];
-}
-
-/* Circle Edge Collision Detection and Resolution */
-
-function wallCollisions(circles, wx1, wy1, wx2, wy2) {
-    for (let i = 0; i < circles.length; i++) {
-        if (circles[i].x - circles[i].r < wx1) {
-            circles[i].x = wx1 + circles[i].r;
-        } else if (circles[i].x + circles[i].r > wx2) {
-            circles[i].x = wx2 - circles[i].r;
+    /* Circle Collision Resoluion */
+    resolveCircleCircleCollisions = () => {
+        for (let i = 0; i < this.circleCircleCollisions.length; i++) {
+            let xratio = this.circleCircleCollisions[i].xdist / this.circleCircleCollisions[i].d;
+            let yratio = this.circleCircleCollisions[i].ydist / this.circleCircleCollisions[i].d;
+            // moves the this.circles apart in opposite directions along a line formed by the centers of either circle
+            this.circleCircleCollisions[i].c1.x -= this.circleCircleCollisions[i].cd * (xratio / 2);
+            this.circleCircleCollisions[i].c1.y -= this.circleCircleCollisions[i].cd * (yratio / 2);
+            this.circleCircleCollisions[i].c2.x += this.circleCircleCollisions[i].cd * (xratio / 2);
+            this.circleCircleCollisions[i].c2.y += this.circleCircleCollisions[i].cd * (yratio / 2);
         }
-        if (circles[i].y - circles[i].r < wy1) {
-            circles[i].y = wy1 + circles[i].r;
-        } else if (circles[i].y + circles[i].r > wy2) {
-            circles[i].y = wy2 - circles[i].r;
-        }
+        this.circleCircleCollisions = [];
     }
-}
-
-/* Circle Line Collision Detection */
-
-function checkCircleLineCollisions(circles, lines) {
-    for (let i = 0; i < circles.length; i++) {
-        for (let j = 0; j < lines.length; j++) {
-            let d = distance(lines[j].x1, lines[j].y1, lines[j].x2, lines[j].y2);
-            // dot product of the line and the vector between one point of the line and the circle
-            let dot = ((circles[i].x - lines[j].x1) * (lines[j].x2 - lines[j].x1) + (circles[i].y - lines[j].y1) * (lines[j].y2 - lines[j].y1)) / d;
-            let xd = lines[j].x2 - lines[j].x1;
-            let yd = lines[j].y2 - lines[j].y1;
-            // closest point on line to the circle
-            let px = dot * (xd / d) + lines[j].x1;
-            let py = dot * (yd / d) + lines[j].y1;
-            // checks if the circle is touching the point
-            if ((circles[i].r > distance(circles[i].x, circles[i].y, px, py) && (circles[i].x > lines[j].x1 && circles[i].y > lines[j].y1 && circles[i].x < lines[j].x2 && circles[i].y < lines[j].y2))
-            || (Math.sqrt((circles[i].x - lines[j].x1)**2 + (circles[i].y - lines[j].y1)**2) < circles[i].r || Math.sqrt((circles[i].x - lines[j].x2)**2 + (circles[i].y - lines[j].y2)**2) < circles[i].r)) {
-                circleLineCollisions.push(circles[i], lines[j]);
+    /* Circle Edge Collision Detection and Resolution */
+    wallCollisions = () => {
+        for (let i = 0; i < this.circles.length; i++) {
+            if (this.circles[i].x - this.circles[i].r < this.wx1) {
+                this.circles[i].x = this.wx1 + this.circles[i].r;
+            } else if (this.circles[i].x + this.circles[i].r > this.wx2) {
+                this.circles[i].x = this.wx2 - this.circles[i].r;
+            }
+            if (this.circles[i].y - this.circles[i].r < this.wy1) {
+                this.circles[i].y = this.wy1 + this.circles[i].r;
+            } else if (this.circles[i].y + this.circles[i].r > this.wy2) {
+                this.circles[i].y = this.wy2 - this.circles[i].r;
             }
         }
     }
-}
-
-/* Circle Line Collision Resolution */
-
-// ------------- IDEK WHAT TO DO. ITS NOT EVEN THAT I CANT FIGURE OUT HOW TO DO IT I JUST DONT KNOW WHAT SHOULD ACTUALLY HAPPEN ----------------
-
-/* render */
-
-function render(ctx, canvas, circles, lines) {
-    ctx.clearRect(0, 0, returnCanvasX(canvas), returnCanvasY(canvas));
-    ctx.strokeStyle = "magenta";
-    for (let c of circles) {
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-        ctx.stroke();
+    /* Circle Line Collision Detection */
+    checkCircleLineCollisions = () => {
+        for (let i = 0; i < this.circles.length; i++) {
+            for (let j = 0; j < this.lines.length; j++) {
+                let d = distance(this.lines[j].x1, this.lines[j].y1, this.lines[j].x2, this.lines[j].y2);
+                // dot product of the line and the vector between one point of the line and the circle
+                let dot = ((this.circles[i].x - this.lines[j].x1) * (this.lines[j].x2 - this.lines[j].x1) + (this.circles[i].y - this.lines[j].y1) * (this.lines[j].y2 - this.lines[j].y1)) / d;
+                let xd = this.lines[j].x2 - this.lines[j].x1;
+                let yd = this.lines[j].y2 - this.lines[j].y1;
+                // closest point on line to the circle
+                let px = dot * (xd / d) + this.lines[j].x1;
+                let py = dot * (yd / d) + this.lines[j].y1;
+                // checks if the circle is touching the point
+                if ((this.circles[i].r > distance(this.circles[i].x, this.circles[i].y, px, py) && (this.circles[i].x > this.lines[j].x1 && this.circles[i].y > this.lines[j].y1 && this.circles[i].x < this.lines[j].x2 && this.circles[i].y < this.lines[j].y2))
+                || (Math.sqrt((this.circles[i].x - this.lines[j].x1)**2 + (this.circles[i].y - this.lines[j].y1)**2) < this.circles[i].r || Math.sqrt((this.circles[i].x - this.lines[j].x2)**2 + (this.circles[i].y - this.lines[j].y2)**2) < this.circles[i].r)) {
+                    this.circleLineCollisions.push(this.circles[i], this.lines[j]);
+                }
+            }
+        }
     }
-    for (let l of lines) {
+    /* render */
+    render = (ctx, canvas) => {
+        ctx.clearRect(0, 0, returnCanvasX(canvas), returnCanvasY(canvas));
+        ctx.strokeStyle = "magenta";
+        if (this.circles.length > 0) {
+            this.xoffset = -this.circles[this.player].x + (returnCanvasX(canvas) / 2);
+            this.yoffset = -this.circles[this.player].y + (returnCanvasY(canvas) / 2);
+            for (let c of this.circles) {
+                ctx.beginPath();
+                ctx.arc(c.x + this.xoffset, c.y + this.yoffset, c.r, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+        }
+        for (let l of this.lines) {
+            ctx.beginPath();
+            ctx.moveTo(l.x1 + this.xoffset, l.y1 + this.yoffset);
+            ctx.lineTo(l.x2 + this.xoffset, l.y2 + this.yoffset);
+            ctx.stroke();
+        }
         ctx.beginPath();
-        ctx.moveTo(l.x1, l.y1);
-        ctx.lineTo(l.x2, l.y2);
+        ctx.moveTo(this.wx1 + this.xoffset, this.wy1 + this.yoffset);
+        ctx.lineTo(this.wx2 + this.xoffset, this.wy1 + this.yoffset);
+        ctx.lineTo(this.wx2 + this.xoffset, this.wy2 + this.yoffset);
+        ctx.lineTo(this.wx1 + this.xoffset, this.wy2 + this.yoffset);
+        ctx.lineTo(this.wx1 + this.xoffset, this.wy1 + this.yoffset);
         ctx.stroke();
     }
 }

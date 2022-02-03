@@ -22,24 +22,20 @@ function returnCanvasY(canvas) {
     return 0;
 }
 
-document.addEventListener("click", (e) => {
-    circles.push(new Circle(e.clientX, e.clientY, 50));
-});
-
 /* Objects */
 
 function Circle(x, y, r) {
     this.x = x;
     this.y = y;
     this.r = r;
-} let circles = [];
+}
 
 function Line(x1, y1, x2, y2) {
     this.x1 = x1;
     this.y1 = y1;
     this.x2 = x2;
     this.y2 = y2;
-} let lines = [];
+}
 
 function CircleCircleCollision(c1, c2, cd) {
     this.c1 = c1;
@@ -48,16 +44,16 @@ function CircleCircleCollision(c1, c2, cd) {
     this.d = distance(c1.x, c1.y, c2.x, c2.y);
     this.xdist = c2.x - c1.x;
     this.ydist = c2.y - c1.y;
-} let circleCircleCollisions = [];
+}
 
 function CircleLineCollision(c, l) {
     this.c = c;
     this.l = l;
-} let circleLineCollisions = [];
+}
 
 /* Circle Collision Detection */
 
-function checkCircleCircleCollisions(circles) {
+function checkCircleCircleCollisions(circles, circleCircleCollisions) {
     for (let i = 0; i < circles.length; i++) {
         for (let j = i + 1; j < circles.length; j++) {
             let d = distance(circles[i].x, circles[i].y, circles[j].x, circles[j].y);
@@ -70,7 +66,7 @@ function checkCircleCircleCollisions(circles) {
 
 /* Circle Collision Resoluion */
 
-function resolveCircleCircleCollisions() {
+function resolveCircleCircleCollisions(circleCircleCollisions) {
     for (let i = 0; i < circleCircleCollisions.length; i++) {
         let xratio = circleCircleCollisions[i].xdist / circleCircleCollisions[i].d;
         let yratio = circleCircleCollisions[i].ydist / circleCircleCollisions[i].d;
@@ -128,7 +124,7 @@ function checkCircleLineCollisions(circles, lines) {
 
 /* render */
 
-function render(ctx, canvas) {
+function render(ctx, canvas, circles, lines) {
     ctx.clearRect(0, 0, returnCanvasX(canvas), returnCanvasY(canvas));
     ctx.strokeStyle = "magenta";
     for (let c of circles) {
@@ -143,15 +139,3 @@ function render(ctx, canvas) {
         ctx.stroke();
     }
 }
-
-export {
-        Circle,
-        Line,
-        CircleCircleCollision,
-        CircleLineCollision,
-        checkCircleCircleCollisions,
-        resolveCircleCircleCollisions,
-        wallCollisions,
-        checkCircleLineCollisions,
-        render
-};

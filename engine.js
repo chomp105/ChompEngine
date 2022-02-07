@@ -24,10 +24,11 @@ function returnCanvasY(canvas) {
 
 /* Objects */
 
-function Circle(x, y, r) {
+function Circle(x, y, r, type) {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.type = type;
 }
 
 function Line(x1, y1, x2, y2) {
@@ -87,10 +88,18 @@ class Chomp {
             let xratio = this.circleCircleCollisions[i].xdist / this.circleCircleCollisions[i].d;
             let yratio = this.circleCircleCollisions[i].ydist / this.circleCircleCollisions[i].d;
             // moves the this.circles apart in opposite directions along a line formed by the centers of either circle
-            this.circleCircleCollisions[i].c1.x -= this.circleCircleCollisions[i].cd * (xratio / 2);
-            this.circleCircleCollisions[i].c1.y -= this.circleCircleCollisions[i].cd * (yratio / 2);
-            this.circleCircleCollisions[i].c2.x += this.circleCircleCollisions[i].cd * (xratio / 2);
-            this.circleCircleCollisions[i].c2.y += this.circleCircleCollisions[i].cd * (yratio / 2);
+            let c1mr = .5, c2mr = .5; // circle one and two movement ratio
+            if (this.circleCircleCollisions[i].c1.type == "static") {
+                c1mr = 0;
+                c2mr = 1;
+            } else if (this.circleCircleCollisions[i].c1.type == "static") {
+                c2mr = 0;
+                c1mr = 1;
+            }
+            this.circleCircleCollisions[i].c1.x -= this.circleCircleCollisions[i].cd * (xratio * c1mr);
+            this.circleCircleCollisions[i].c1.y -= this.circleCircleCollisions[i].cd * (yratio * c1mr);
+            this.circleCircleCollisions[i].c2.x += this.circleCircleCollisions[i].cd * (xratio * c2mr);
+            this.circleCircleCollisions[i].c2.y += this.circleCircleCollisions[i].cd * (yratio * c2mr);
         }
         this.circleCircleCollisions = [];
     }

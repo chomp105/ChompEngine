@@ -11,7 +11,7 @@ How to use
 ----------
 For client side use:
 1. Download engine.js and put it in your project's directory
-2. In your html before your other javascript place this line of code: ```<script src="./engine.js></script>```
+2. In your html, before your other javascript, place this line of code: ```<script src="./engine.js></script>```
 
 For server side use:
 1. cd into your project directory

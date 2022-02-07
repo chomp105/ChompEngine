@@ -15,7 +15,7 @@ For client side use:
 
 For server side use:
 1. cd into your project directory
-2. Run the command ```node server.js```
+2. Run the command ```npm install chompengine```
 
 Documentation
 -------------

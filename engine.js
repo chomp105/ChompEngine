@@ -38,11 +38,11 @@ function Line(x1, y1, x2, y2) {
     this.y2 = y2;
 }
 
-function CircleCircleCollision(c1, c2, cd) {
+function CircleCircleCollision(c1, c2, cd, d) {
     this.c1 = c1;
     this.c2 = c2;
     this.cd = cd; // collision distance
-    this.d = distance(c1.x, c1.y, c2.x, c2.y);
+    this.d = d;
     this.xdist = c2.x - c1.x;
     this.ydist = c2.y - c1.y;
 }
@@ -77,7 +77,7 @@ class Chomp {
             for (let j = i + 1; j < this.circles.length; j++) {
                 let d = distance(this.circles[i].x, this.circles[i].y, this.circles[j].x, this.circles[j].y);
                 if (d < this.circles[i].r + this.circles[j].r) {
-                    this.circleCircleCollisions.push(new CircleCircleCollision(this.circles[i], this.circles[j], this.circles[i].r + this.circles[j].r - d));
+                    this.circleCircleCollisions.push(new CircleCircleCollision(this.circles[i], this.circles[j], this.circles[i].r + this.circles[j].r - d, d));
                 }
             }
         }
@@ -127,7 +127,7 @@ class Chomp {
                 let py = dot * (yd / d) + this.lines[j].y1;
                 // checks if the circle is touching the point
                 if ((this.circles[i].r > distance(this.circles[i].x, this.circles[i].y, px, py) && (this.circles[i].x > this.lines[j].x1 && this.circles[i].y > this.lines[j].y1 && this.circles[i].x < this.lines[j].x2 && this.circles[i].y < this.lines[j].y2))
-                || (Math.sqrt((this.circles[i].x - this.lines[j].x1)**2 + (this.circles[i].y - this.lines[j].y1)**2) < this.circles[i].r || Math.sqrt((this.circles[i].x - this.lines[j].x2)**2 + (this.circles[i].y - this.lines[j].y2)**2) < this.circles[i].r)) {
+                || ((this.circles[i].x - this.lines[j].x1)**2 + (this.circles[i].y - this.lines[j].y1)**2 < this.circles[i].r**2 || (this.circles[i].x - this.lines[j].x2)**2 + (this.circles[i].y - this.lines[j].y2)**2 < this.circles[i].r**2)) {
                     this.circleLineCollisions.push(this.circles[i], this.lines[j]);
                 }
             }

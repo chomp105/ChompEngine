@@ -24,11 +24,11 @@ function returnCanvasY(canvas) {
 
 /* Objects */
 
-function Circle(x, y, r, type) {
+function Circle(x, y, r, isStatic) {
     this.x = x;
     this.y = y;
     this.r = r;
-    this.type = type;
+    this.isStatic = isStatic;
 }
 
 function Line(x1, y1, x2, y2) {
@@ -89,7 +89,7 @@ class Chomp {
             let yratio = this.circleCircleCollisions[i].ydist / this.circleCircleCollisions[i].d;
             // moves the this.circles apart in opposite directions along a line formed by the centers of either circle
             // circle one and two movement ratio
-            let c1mr = 0.5 + (0.5 * (this.circleCircleCollisions[i].c1.type != "static") + -0.5 * (this.circleCircleCollisions[i].c2.type != "static"));
+            let c1mr = 0.5 + (0.5 * (!this.circleCircleCollisions[i].c1.isStatic) + -0.5 * (!this.circleCircleCollisions[i].c2.isStatic));
             let c2mr = 1 - c1mr;
             this.circleCircleCollisions[i].c1.x -= this.circleCircleCollisions[i].cd * (xratio * c1mr);
             this.circleCircleCollisions[i].c1.y -= this.circleCircleCollisions[i].cd * (yratio * c1mr);
